@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://yunanlong.github.io</id>
-    <title>Gridea</title>
-    <updated>2020-07-10T07:47:00.952Z</updated>
+    <title>余南龙的个人主页Nanlong Yu&apos;s Personal Page</title>
+    <updated>2020-07-10T08:28:07.687Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://yunanlong.github.io"/>
     <link rel="self" href="https://yunanlong.github.io/atom.xml"/>
-    <subtitle>温故而知新</subtitle>
+    <subtitle>Database kernel development</subtitle>
     <logo>https://yunanlong.github.io/images/avatar.png</logo>
     <icon>https://yunanlong.github.io/favicon.ico</icon>
-    <rights>All rights reserved 2020, Gridea</rights>
+    <rights>All rights reserved 2020, 余南龙的个人主页Nanlong Yu&apos;s Personal Page</rights>
     <entry>
         <title type="html"><![CDATA[Hello Gridea]]></title>
         <id>https://yunanlong.github.io/post/hello-gridea/</id>

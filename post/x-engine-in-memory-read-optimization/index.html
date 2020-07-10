@@ -1,25 +1,101 @@
-<?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom">
-    <id>https://yunanlong.github.io</id>
-    <title>余南龙的个人主页</title>
-    <updated>2020-07-10T09:26:31.769Z</updated>
-    <generator>https://github.com/jpmonette/feed</generator>
-    <link rel="alternate" href="https://yunanlong.github.io"/>
-    <link rel="self" href="https://yunanlong.github.io/atom.xml"/>
-    <subtitle>Database kernel development</subtitle>
-    <logo>https://yunanlong.github.io/images/avatar.png</logo>
-    <icon>https://yunanlong.github.io/favicon.ico</icon>
-    <rights>All rights reserved 2020, 余南龙的个人主页</rights>
-    <entry>
-        <title type="html"><![CDATA[X-Engine的In-Memory读性能优化]]></title>
-        <id>https://yunanlong.github.io/post/x-engine-in-memory-read-optimization/</id>
-        <link href="https://yunanlong.github.io/post/x-engine-in-memory-read-optimization/">
-        </link>
-        <updated>2020-06-18T08:35:40.000Z</updated>
-        <summary type="html"><![CDATA[<h1 id="1背景">1.背景</h1>
-<p>X-Engine是一个基于LSM-tree架构的存储引擎，选用LSM-tree架构有一定的业务背景, 如双11时淘宝天猫的订单创建操作都是通过对数据库的insert来实现的，LSM-tree对这类操作更为友好。但X-Engine引擎的目标是成为一个通用的高性能低成本的事务存储引擎，而大部分数据库的负载特征是读多写少，即使是纯写入负载，写入之前的Check Unique校验过程也会导致读。因此读操作的性能在X-Engine中处在一个比写性能更重要的地位上。</p>
-]]></summary>
-        <content type="html"><![CDATA[<h1 id="1背景">1.背景</h1>
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>X-Engine的In-Memory读性能优化 | 余南龙的个人主页</title>
+<link rel="shortcut icon" href="https://yunanlong.github.io/favicon.ico?v=1594373156394">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
+<link rel="stylesheet" href="https://yunanlong.github.io/styles/main.css">
+<link rel="alternate" type="application/atom+xml" title="X-Engine的In-Memory读性能优化 | 余南龙的个人主页 - Atom Feed" href="https://yunanlong.github.io/atom.xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
+
+
+
+    <meta name="description" content="1.背景
+X-Engine是一个基于LSM-tree架构的存储引擎，选用LSM-tree架构有一定的业务背景, 如双11时淘宝天猫的订单创建操作都是通过对数据库的insert来实现的，LSM-tree对这类操作更为友好。但X-Engine引..." />
+    <meta name="keywords" content="内存索引优化" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+    <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://yunanlong.github.io">
+  <img class="avatar" src="https://yunanlong.github.io/images/avatar.png?v=1594373156394" alt="">
+  </a>
+  <h1 class="site-title">
+    余南龙的个人主页
+  </h1>
+  <p class="site-description">
+    Database kernel development
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              X-Engine的In-Memory读性能优化
+            </h2>
+            <div class="post-info">
+              <span>
+                2020-06-18
+              </span>
+              <span>
+                20 min read
+              </span>
+              
+                <a href="https://yunanlong.github.io/tag/yNdFvnhxq/" class="post-tag">
+                  # 内存索引优化
+                </a>
+              
+            </div>
+            
+              <img class="post-feature-image" src="https://tva1.sinaimg.cn/large/007S8ZIlly1ggm06lqvdcj30za0fktab.jpg" alt="">
+            
+            <div class="post-content-wrapper">
+              <div class="post-content">
+                <h1 id="1背景">1.背景</h1>
 <p>X-Engine是一个基于LSM-tree架构的存储引擎，选用LSM-tree架构有一定的业务背景, 如双11时淘宝天猫的订单创建操作都是通过对数据库的insert来实现的，LSM-tree对这类操作更为友好。但X-Engine引擎的目标是成为一个通用的高性能低成本的事务存储引擎，而大部分数据库的负载特征是读多写少，即使是纯写入负载，写入之前的Check Unique校验过程也会导致读。因此读操作的性能在X-Engine中处在一个比写性能更重要的地位上。</p>
 <!-- more -->
 <p>虽然同为LSM-tree架构，X-Engine的设计哲学与传统基于LSM-tree架构的Rocksdb等引擎并不完全一致，如下图所示：<br>
@@ -212,6 +288,103 @@
 <li>维护一个全局的epoch计数器，每个线程在使用共享的内存对象前先获取当前的全局epoch并保存在thread local storage中，当释放共享的内存对象后将thread local storage记录的epoch设为∞</li>
 <li>当共享的内存对象需要从Cache中被淘汰时，首先从Cache的管理结构中删除，但并不立即回收内存空间，而是获取淘汰时的全局epoch记录在内存对象中，并将内存对象放入队列，队列超过容量时，遍历并计算thread local storage中记录的oldest epoch，释放队列中淘汰epoch小于oldest epoch的内存对象的空间</li>
 </ol>
-]]></content>
-    </entry>
-</feed>
+
+              </div>
+              <div class="toc-container">
+                <ul class="markdownIt-TOC">
+<li><a href="#1%E8%83%8C%E6%99%AF">1.背景</a></li>
+<li><a href="#2%E8%AF%BB%E5%8F%96%E8%B7%AF%E5%BE%84%E7%9A%84%E9%97%AE%E9%A2%98">2.读取路径的问题</a></li>
+<li><a href="#3block%E7%BC%96%E7%A0%81%E5%8F%8Asimd">3.Block编码及SIMD</a>
+<ul>
+<li><a href="#31%E6%95%B0%E6%8D%AE%E9%A1%B5%E7%BC%96%E7%A0%81%E5%8F%8A%E5%85%B6%E9%97%AE%E9%A2%98">3.1数据页编码及其问题</a></li>
+<li><a href="#32-cache%E5%8F%8B%E5%A5%BD%E7%9A%84block%E7%BC%96%E7%A0%81">3.2 Cache友好的Block编码</a></li>
+<li><a href="#33-simd%E6%8C%87%E4%BB%A4%E5%8A%A0%E9%80%9F%E9%95%BFkey%E6%AF%94%E8%BE%83">3.3 SIMD指令加速长Key比较</a></li>
+</ul>
+</li>
+<li><a href="#2-bp%E7%9A%84%E4%BB%A3%E4%BB%B7%E5%8F%8Apointswizzling">2. BP的代价及PointSwizzling</a>
+<ul>
+<li><a href="#21-bufferpool%E7%AE%A1%E7%90%86%E6%88%90%E6%9C%AC">2.1 BufferPool管理成本：</a></li>
+<li><a href="#22-pointswizzling">2.2 PointSwizzling</a></li>
+</ul>
+</li>
+<li><a href="#3-%E5%A4%9A%E6%A0%B8cpu%E4%B8%8A%E7%9A%84cache%E8%AE%BF%E9%97%AE">3 多核CPU上的Cache访问</a>
+<ul>
+<li><a href="#31-%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%B9%B6%E5%8F%91%E9%97%AE%E9%A2%98">3.1 多线程并发问题</a></li>
+<li><a href="#32-%E5%A4%9A%E6%A0%B8shared-nothing%E6%9E%B6%E6%9E%84">3.2 多核Shared-nothing架构：</a></li>
+</ul>
+</li>
+<li><a href="#4-%E5%AE%9E%E9%AA%8C%E9%AA%8C%E8%AF%81">4 实验验证</a>
+<ul>
+<li><a href="#41-%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83">4.1 测试环境</a></li>
+<li><a href="#42-%E6%B5%8B%E8%AF%95%E5%9C%BA%E6%99%AF">4.2 测试场景</a></li>
+<li><a href="#43-%E6%B5%8B%E8%AF%95%E7%BB%93%E6%9E%9C">4.3 测试结果</a></li>
+</ul>
+</li>
+<li><a href="#%E9%99%84%E5%BD%95">附录</a>
+<ul>
+<li><a href="#%E5%9F%BA%E4%BA%8Eepoch%E7%9A%84%E5%86%85%E5%AD%98%E5%9B%9E%E6%94%B6">基于Epoch的内存回收</a></li>
+</ul>
+</li>
+</ul>
+
+              </div>
+            </div>
+          </article>
+        </div>
+
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+  <a class="rss" href="https://yunanlong.github.io/atom.xml" target="_blank">
+    <i class="ri-rss-line"></i> RSS
+  </a>
+</div>
+
+      </div>
+    </div>
+
+    <script>
+      hljs.initHighlightingOnLoad()
+
+      let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
+
+      // This should probably be throttled.
+      // Especially because it triggers during smooth scrolling.
+      // https://lodash.com/docs/4.17.10#throttle
+      // You could do like...
+      // window.addEventListener("scroll", () => {
+      //    _.throttle(doThatStuff, 100);
+      // });
+      // Only not doing it here to keep this Pen dependency-free.
+
+      window.addEventListener("scroll", event => {
+        let fromTop = window.scrollY;
+
+        mainNavLinks.forEach((link, index) => {
+          let section = document.getElementById(decodeURI(link.hash).substring(1));
+          let nextSection = null
+          if (mainNavLinks[index + 1]) {
+            nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+          }
+          if (section.offsetTop <= fromTop) {
+            if (nextSection) {
+              if (nextSection.offsetTop > fromTop) {
+                link.classList.add("current");
+              } else {
+                link.classList.remove("current");    
+              }
+            } else {
+              link.classList.add("current");
+            }
+          } else {
+            link.classList.remove("current");
+          }
+        });
+      });
+
+    </script>
+  </body>
+</html>

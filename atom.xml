@@ -2,11 +2,11 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://yunanlong.github.io</id>
     <title>余南龙的个人主页</title>
-    <updated>2020-07-10T09:26:31.769Z</updated>
+    <updated>2020-07-11T08:34:39.319Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://yunanlong.github.io"/>
     <link rel="self" href="https://yunanlong.github.io/atom.xml"/>
-    <subtitle>Database kernel development</subtitle>
+    <subtitle>Database kernel R&amp;D</subtitle>
     <logo>https://yunanlong.github.io/images/avatar.png</logo>
     <icon>https://yunanlong.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, 余南龙的个人主页</rights>
